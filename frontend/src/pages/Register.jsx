@@ -95,7 +95,7 @@ function Register() {
             requirements and track your development over time.
           </p>
 
-          /* Feature list */
+          {/* Feature list */}
           <div className="auth-feature-list">
             <article>
               <strong>Analyse your CV</strong>
@@ -122,7 +122,7 @@ function Register() {
         </div>
       </section>
 
-      /* Registration form */
+      {/* Registration form */}
       <section className="auth-panel auth-form-section">
         <div className="auth-form-wrapper">
           <header className="auth-heading">
@@ -210,7 +210,7 @@ function Register() {
               </p>
             )}
             
-            /* Register button */
+            {/* Register button */}
             <button
               className="primary-button full-width-button"
               type="submit"

@@ -287,19 +287,24 @@ Generate practical and supportive career guidance for a student or graduate.
 Important rules:
 1. Use only the information provided from the CV and job description.
 2. Do not change the supplied matched-skills or missing-skills results.
-3. Use simple, clear and grammatically correct English.
-4. Keep the responses clear and short so the complete JSON fits in the response.
-5. Return exactly 10 interview_questions.
-6. Each interview question must be specific to the supplied CV, job description,
+3. Keep the responses clear and short so the complete JSON fits in the response.
+4. Return exactly 10 interview_questions.
+5. Each interview question must be specific to the supplied CV, job description,
    matched skills, missing skills, or recommended career direction.
-7. interview_questions must contain objects with:
+6. interview_questions must contain objects with:
    - question
    - purpose
    - answer_guidance
-8. cover_letter_points must only use facts directly from the provided CV,
-   Do not fabricate job history or extra details.
-9. learning_roadmap should focus mainly on the supplied missing skills.
-10. Return only valid JSON matching the required schema.
+7. cover_letter_points must only use information from the provided CV.
+   Do not add information that is not in the CV.
+   Spelling, grammar, wording, and formatting can be improved without changing the meaning.
+8. learning_roadmap should focus mainly on the supplied missing skills.
+9. Return only valid JSON matching the required schema.
+10. Use simple, clear and grammatically correct English.
+11. Correct clear spelling, grammar, capitalisation, and wording mistakes
+   in the provided information without changing its meaning.
+12. Write cover_letter_points as natural, professional cover-letter content.
+    Do not mention the CV analysis, match score, or analysis process.
 """.strip()
 
 

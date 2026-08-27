@@ -160,11 +160,93 @@ function getFirstArray(source, keys) {
   return [];
 }
 
+const TECHNICAL_TERMS = new Map([
+  ["api", "API"],
+  ["aws", "AWS"],
+  ["css", "CSS"],
+  ["git", "Git"],
+  ["github", "GitHub"],
+  ["html", "HTML"],
+  ["javascript", "JavaScript"],
+  ["js", "JavaScript"],
+  ["json", "JSON"],
+  ["linux", "Linux"],
+  ["node.js", "Node.js"],
+  ["nodejs", "Node.js"],
+  ["python", "Python"],
+  ["react", "React"],
+  ["sql", "SQL"],
+  ["typescript", "TypeScript"],
+]);
+
+function formatTechnicalTerms(value) {
+  const words = normaliseText(value)
+    .replaceAll("_", " ")
+    .split(/(\s+|[,/()])/);
+
+  return words
+    .map((part) => {
+      const key = part.trim().toLowerCase();
+
+      if (!key) {
+        return part;
+      }
+
+      return TECHNICAL_TERMS.get(key) || part;
+    })
+    .join("");
+}
+
 function titleCase(value) {
-  return normaliseText(value)
+  const cleaned = normaliseText(value)
     .replaceAll("_", " ")
     .replaceAll("-", " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
+
+  return formatTechnicalTerms(cleaned);
+}
+
+function polishAdditionalDetails(value) {
+  let cleaned = normaliseText(value);
+
+  if (!cleaned) {
+    return "";
+  }
+
+  cleaned = cleaned
+    .replace(/\bstacking website\b/gi, "stack website")
+    .replace(/\bfull stack\b/gi, "full-stack")
+    .replace(/(^|[.!?]\s+)i\b/g, "$1I")
+    .replace(/\s+([,.!?])/g, "$1")
+    .replace(/\s{2,}/g, " ");
+
+  cleaned = formatTechnicalTerms(cleaned);
+
+  cleaned = cleaned.replace(
+    /\b(HTML|CSS|JavaScript|TypeScript|Python|React|Git|GitHub|SQL|API|AWS|Linux)(?:\s+(HTML|CSS|JavaScript|TypeScript|Python|React|Git|GitHub|SQL|API|AWS|Linux))+(?:\s+and\s+(HTML|CSS|JavaScript|TypeScript|Python|React|Git|GitHub|SQL|API|AWS|Linux))?/g,
+    (match) => {
+      const technologies = match
+        .replace(/\s+and\s+/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+      if (technologies.length === 2) {
+        return `${technologies[0]} and ${technologies[1]}`;
+      }
+
+      return `${technologies.slice(0, -1).join(", ")}, and ${
+        technologies[technologies.length - 1]
+      }`;
+    },
+  );
+
+  cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+
+  if (!/[.!?]$/.test(cleaned)) {
+    cleaned += ".";
+  }
+
+  return cleaned;
 }
 
 function formatSkillList(skills, maximumSkills = 5) {
@@ -425,7 +507,12 @@ function inferJobTitle(jobDescription, recommendedRole) {
     const match = description.match(pattern);
 
     if (match?.[1]) {
-      return titleCase(match[1].slice(0, 80));
+      const inferredTitle = match[1]
+        .slice(0, 80)
+        .split(/\s+(?:to|who|that|responsible for)\s+/i)[0]
+        .trim();
+
+      return titleCase(inferredTitle);
     }
   }
 
@@ -494,13 +581,13 @@ function buildEvidenceParagraph({
   const skillsText = formatSkillList(evidenceSkills, 5);
 
   if (!skillsText) {
-    return "My CV demonstrates transferable experience, a willingness to learn and the ability to approach responsibilities carefully and reliably. I would welcome the opportunity to explain how my background could support your team.";
+    return "I bring transferable experience, a willingness to learn and a careful, reliable approach to responsibilities. I would welcome the opportunity to explain how my background could support your team.";
   }
 
   if (tone === "confident") {
-    return `The analysis of my CV identified ${skillsText} among my relevant capabilities. These strengths demonstrate that I can communicate effectively, approach problems methodically and adapt my existing knowledge to the responsibilities of the role.${
+    return `My relevant capabilities include ${skillsText}. These strengths support my ability to communicate effectively, approach problems methodically and adapt my existing knowledge to the responsibilities of the role.${
       matchScore > 0
-        ? ` The current skills comparison also gives me a clear, evidence-based understanding of where I can add value immediately.`
+        ? ` I am confident that this combination would allow me to contribute positively while continuing to develop in the position.`
         : ""
     }`;
   }
@@ -509,9 +596,9 @@ function buildEvidenceParagraph({
     return `My relevant capabilities include ${skillsText}. I would apply these strengths to the role's day-to-day responsibilities and the wider objectives of the team.`;
   }
 
-  return `My CV analysis identified ${skillsText} as relevant capabilities. I have developed these strengths through my previous experience and would apply them to completing tasks accurately, collaborating with colleagues and supporting the organisation's objectives.${
+  return `My relevant strengths include ${skillsText}. I have developed these capabilities through my experience and would apply them to completing tasks accurately, collaborating with colleagues and supporting the organisation's objectives.${
     matchScore > 0
-      ? ` The comparison has also helped me assess my suitability for the position in a structured and realistic way.`
+      ? ` I would also bring a realistic understanding of my current strengths and a commitment to continued professional development.`
       : ""
   }`;
 }
@@ -546,7 +633,7 @@ function buildGeminiEvidenceParagraph(coverLetterPoints) {
   }
 
   return [
-    "Based on the detailed comparison of my CV and the vacancy, I would particularly highlight:",
+    "I would particularly highlight the following relevant strengths and experience:",
     ...selectedPoints.map((point) => `• ${point}`),
   ].join("\n");
 }
@@ -563,7 +650,9 @@ function generateCoverLetter(form, analysisData) {
     analysisData.recommendedRole ||
     "the advertised position";
   const location = normaliseText(form.location);
-  const additionalDetails = normaliseText(form.additionalDetails);
+  const additionalDetails = polishAdditionalDetails(
+    form.additionalDetails,
+  );
 
   const strongestSkills =
     analysisData.matchedSkills.length > 0

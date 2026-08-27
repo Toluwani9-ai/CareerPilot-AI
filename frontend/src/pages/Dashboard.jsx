@@ -1,54 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-// Local storage key
 const STORAGE_KEY = "careerPilotLatestAnalysis";
 
-function normaliseSkillList(value) {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value
-    .map((skill) => {
-      if (typeof skill === "string") {
-        return skill.trim();
-      }
-
-      // Cotrols object values
-      if (skill && typeof skill === "object") {
-        return String(
-          skill.name ??
-            skill.skill ??
-            skill.label ??
-            skill.preferred_label ??
-            "",
-        ).trim();
-      }
-
-      return "";
-    })
-    .filter(Boolean);
-}
-
-// Format skill name
-function formatSkillName(skill) {
-  return skill
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (character) => character.toUpperCase());
-}
-
-function clampPercentage(value) {
-  const numericValue = Number(value);
-
-  if (!Number.isFinite(numericValue)) {
-    return 0;
-  }
-
-  return Math.min(100, Math.max(0, numericValue));
-}
-
-// Get saved analysis
 function readLatestAnalysis() {
   try {
     const storedValue = window.localStorage.getItem(STORAGE_KEY);
@@ -56,8 +10,7 @@ function readLatestAnalysis() {
     if (!storedValue) {
       return null;
     }
-    
-    // Convert JSON to object
+
     const parsedValue = JSON.parse(storedValue);
 
     return parsedValue && typeof parsedValue === "object"
@@ -69,26 +22,101 @@ function readLatestAnalysis() {
   }
 }
 
-// Dashboard component
+function normaliseStringList(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => {
+      if (typeof item === "string") {
+        return item.trim();
+      }
+
+      if (item && typeof item === "object") {
+        return String(
+          item.name ??
+            item.skill ??
+            item.title ??
+            item.label ??
+            "",
+        ).trim();
+      }
+
+      return "";
+    })
+    .filter(Boolean);
+}
+
+function getAnalysisData(result) {
+  return result?.analysis ?? result?.result ?? result ?? {};
+}
+
+function getMatchScore(analysis) {
+  const possibleScore =
+    analysis?.match_score ??
+    analysis?.score ??
+    analysis?.match_percentage ??
+    analysis?.percentage ??
+    analysis?.career_recommendation?.career_match_score;
+
+  const numericScore = Number(possibleScore);
+
+  if (!Number.isFinite(numericScore)) {
+    return 0;
+  }
+
+  if (numericScore > 0 && numericScore <= 1) {
+    return numericScore * 100;
+  }
+
+  return Math.min(100, Math.max(0, numericScore));
+}
+
+function getCareerRecommendation(analysis) {
+  const recommendation =
+    analysis?.career_recommendation ??
+    analysis?.recommendation ??
+    analysis?.recommended_career;
+
+  if (typeof recommendation === "string") {
+    return recommendation.trim();
+  }
+
+  if (recommendation && typeof recommendation === "object") {
+    return String(
+      recommendation.recommended_career ??
+        recommendation.career ??
+        recommendation.title ??
+        "",
+    ).trim();
+  }
+
+  return "";
+}
+
+function formatSkill(skill) {
+  return String(skill)
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
 function Dashboard() {
   const [latestResult, setLatestResult] = useState(() =>
     readLatestAnalysis(),
   );
 
-  // Update dashboard data
   useEffect(() => {
     function refreshDashboard() {
       setLatestResult(readLatestAnalysis());
     }
 
-    // updates storage 
     function handleStorageChange(event) {
       if (!event.key || event.key === STORAGE_KEY) {
         refreshDashboard();
       }
     }
 
-    // Listen for storage changes
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener(
       "careerpilot-analysis-updated",
@@ -109,343 +137,487 @@ function Dashboard() {
       return null;
     }
 
-    // It get analysis results
-    const analysis =
-      latestResult.analysis &&
-      typeof latestResult.analysis === "object"
-        ? latestResult.analysis
-        : latestResult;
+    const analysis = getAnalysisData(latestResult);
 
-    // It get career recommendation
-    const recommendation =
-      analysis.career_recommendation &&
-      typeof analysis.career_recommendation === "object"
-        ? analysis.career_recommendation
-        : {};
-
-    const matchedSkills = normaliseSkillList(
-      analysis.matched_skills,
+    const matchedSkills = normaliseStringList(
+      analysis?.matched_skills ?? analysis?.matching_skills,
     );
 
-    const missingSkills = normaliseSkillList(
-      analysis.missing_skills,
+    const missingSkills = normaliseStringList(
+      analysis?.missing_skills ?? analysis?.skill_gaps,
     );
 
-    const cvSkills = normaliseSkillList(
-      analysis.cv_skills ?? analysis.detected_skills,
+    const cvSkills = normaliseStringList(
+      analysis?.cv_skills ?? analysis?.detected_skills,
     );
 
-    // get required skills
-    const requiredSkills = normaliseSkillList(
-      analysis.required_skills,
-    );
-
-    const matchScore = clampPercentage(
-      analysis.match_score ??
-        analysis.score ??
-        recommendation.career_match_score,
-    );
-
-    const recommendedCareer =
-      recommendation.recommended_career ??
-      analysis.recommended_career ??
-      analysis.career ??
-      "Not available";
+    const matchScore = getMatchScore(analysis);
 
     const matchLevel =
-      analysis.match_level ??
-      recommendation.career_match_level ??
-      "Not available";
+      analysis?.match_level ??
+      analysis?.level ??
+      analysis?.match_rating ??
+      analysis?.career_recommendation?.career_match_level ??
+      "";
 
-    // processed dashboard data
+    const careerRecommendation = getCareerRecommendation(analysis);
+
     return {
-      filename:
-        latestResult.filename ??
-        latestResult.file_name ??
-        analysis.filename ??
-        "Uploaded CV",
-      extractedCharacters:
-        latestResult.extracted_character_count ??
-        latestResult.extracted_characters ??
-        analysis.extracted_character_count ??
-        null,
       matchedSkills,
       missingSkills,
       cvSkills,
-      requiredSkills,
       matchScore,
       matchLevel,
-      recommendedCareer,
+      careerRecommendation,
     };
   }, [latestResult]);
 
-  // Clear saved analysis
-  function clearLatestAnalysis() {
-    const confirmed = window.confirm(
-      "Remove the saved analysis from this dashboard?",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    window.localStorage.removeItem(STORAGE_KEY);
-    setLatestResult(null);
-  }
-
-  if (!dashboardData) {
-    return (
-      <main className="dashboard-page">
-        <section className="dashboard-empty-state">
+  return (
+    <main className="dashboard-page">
+      <section className="dashboard-welcome-card">
+        <div className="dashboard-welcome-copy">
           <p className="page-eyebrow">Career overview</p>
 
           <h1>CareerPilot AI Dashboard</h1>
 
-           {/* User instructions */}
-          <p className="dashboard-empty-description">
-            Upload your CV and compare it with a job description to
-            generate your skills analysis, match score and career
-            recommendation.
+          <p className="dashboard-welcome-description">
+            Analyse your CV against a job description, then review your
+            latest results and career insights from this dashboard.
           </p>
 
           <Link className="primary-button" to="/upload-cv">
-            Upload and analyse a CV
+            Analyse my CV
           </Link>
-        </section>
-      </main>
-    );
-  }
-
-  const {
-    filename,
-    extractedCharacters,
-    matchedSkills,
-    missingSkills,
-    cvSkills,
-    requiredSkills,
-    matchScore,
-    matchLevel,
-    recommendedCareer,
-  } = dashboardData;
-
-  return (
-    <main className="dashboard-page">
-      <header className="dashboard-header">
-        <div>
-          <p className="page-eyebrow">Latest CV analysis</p>
-          <h1>CareerPilot AI Dashboard</h1>
-          <p>
-            Review your latest CV comparison and continue developing
-            your career profile.
-          </p>
         </div>
 
-        <div className="dashboard-header-actions">
-          <Link className="primary-button" to="/upload-cv">
-            Analyse another CV
-          </Link>
-
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={clearLatestAnalysis}
-          >
-            Clear results
-          </button>
-        </div>
-      </header>
-
-      <section
-        className="dashboard-summary-grid"
-        aria-label="Analysis summary"
-      >
-        <article className="dashboard-summary-card dashboard-score-card">
-          <div className="dashboard-card-heading">
-            <span>Match score</span>
-            <strong>{matchScore.toFixed(1)}%</strong>
+        {!dashboardData ? (
+          <div className="dashboard-analysis-placeholder">
+            <p className="page-eyebrow">Latest analysis</p>
+            <h2>Your CV analysis will appear here</h2>
+            <p>
+              Complete a CV analysis to display your match score, matched
+              skills, missing skills and suggested career direction.
+            </p>
           </div>
+        ) : (
+          <div className="dashboard-latest-analysis">
+            <div className="dashboard-analysis-heading">
+              <div>
+                <p className="page-eyebrow">Latest analysis</p>
+                <h2>Your CV analysis</h2>
+              </div>
 
-          {/* Display CV match score */}
-          <div
-            className="dashboard-progress-track"
-            role="progressbar"
-            aria-label="CV match score"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow={Math.round(matchScore)}
-          >
-            <span
-              className="dashboard-progress-value"
-              style={{ width: `${matchScore}%` }}
-            />
-          </div>
-
-          <p>{matchLevel}</p>
-        </article>
-
-        {/* Display matched skills summary */}
-        <article className="dashboard-summary-card">
-          <span>Matched skills</span>
-          <strong>{matchedSkills.length}</strong>
-          <p>Skills found in both your CV and the job description.</p>
-        </article>
-
-        <article className="dashboard-summary-card">
-          <span>Missing skills</span>
-          <strong>{missingSkills.length}</strong>
-          <p>Requirements that were not clearly detected in your CV.</p>
-        </article>
-
-        <article className="dashboard-summary-card">
-          <span>Detected CV skills</span>
-          <strong>{cvSkills.length}</strong>
-          <p>Skills identified from your uploaded document.</p>
-        </article>
-      </section>
-
-      <section className="dashboard-content-grid">
-        <article className="dashboard-panel">
-          <div className="dashboard-panel-heading">
-            <div>
-              <p className="page-eyebrow">Strengths</p>
-              <h2>Matched skills</h2>
+              {dashboardData.matchLevel && (
+                <span className="dashboard-match-badge">
+                  {dashboardData.matchLevel}
+                </span>
+              )}
             </div>
 
-            <span className="dashboard-count-badge">
-              {matchedSkills.length}
-            </span>
-          </div>
+            <div className="dashboard-score-block">
+              <div>
+                <span>Job match score</span>
+                <strong>{Math.round(dashboardData.matchScore)}%</strong>
+              </div>
 
-          {/* matched skills */}
-          {matchedSkills.length > 0 ? (
-            <ul className="skill-chip-list">
-              {matchedSkills.map((skill) => (
-                <li key={skill} className="skill-chip skill-chip-success">
-                  {formatSkillName(skill)}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="dashboard-empty-message">
-              No matched skills were returned for this analysis.
-            </p>
-          )}
-        </article>
-
-        <article className="dashboard-panel">
-          <div className="dashboard-panel-heading">
-            <div>
-              <p className="page-eyebrow">Development areas</p>
-              <h2>Missing skills</h2>
+              <div
+                className="dashboard-progress-track"
+                role="progressbar"
+                aria-label="Job match score"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow={Math.round(dashboardData.matchScore)}
+              >
+                <span
+                  className="dashboard-progress-value"
+                  style={{ width: `${dashboardData.matchScore}%` }}
+                />
+              </div>
             </div>
 
-            <span className="dashboard-count-badge">
-              {missingSkills.length}
-            </span>
-          </div>
+            <div className="dashboard-mini-grid">
+              <article>
+                <span>Matched skills</span>
+                <strong>{dashboardData.matchedSkills.length}</strong>
+              </article>
 
-          {missingSkills.length > 0 ? (
-            <ul className="skill-chip-list">
-              {missingSkills.map((skill) => (
-                <li key={skill} className="skill-chip skill-chip-warning">
-                  {formatSkillName(skill)}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="dashboard-empty-message">
-              No missing skills were identified.
-            </p>
-          )}
-        </article>
-      </section>
+              <article>
+                <span>Missing skills</span>
+                <strong>{dashboardData.missingSkills.length}</strong>
+              </article>
 
-      <section className="dashboard-recommendation-card">
-        <div>
-          <p className="page-eyebrow">Career recommendation</p>
-          <h2>{recommendedCareer}</h2>
-        </div>
+              <article>
+                <span>Detected CV skills</span>
+                <strong>{dashboardData.cvSkills.length}</strong>
+              </article>
+            </div>
 
-        <dl className="dashboard-recommendation-details">
-          <div>
-            <dt>Career match score</dt>
-            <dd>{matchScore.toFixed(1)}%</dd>
-          </div>
-
-          <div>
-            <dt>Match level</dt>
-            <dd>{matchLevel}</dd>
-          </div>
-        </dl>
-      </section>
-
-      <section className="dashboard-panel dashboard-details-panel">
-        <div className="dashboard-panel-heading">
-          <div>
-            <p className="page-eyebrow">Analysis details</p>
-            <h2>Uploaded document</h2>
-          </div>
-        </div>
-
-        <dl className="dashboard-file-details">
-          <div>
-            <dt>Filename</dt>
-            <dd>{filename}</dd>
-          </div>
-
-          {/* Extracted characters */}
-          <div>
-            <dt>Extracted characters</dt>
-            <dd>
-              {Number.isFinite(Number(extractedCharacters))
-                ? Number(extractedCharacters).toLocaleString()
-                : "Not available"}
-            </dd>
-          </div>
-
-          <div>
-            <dt>Required skills detected</dt>
-            <dd>{requiredSkills.length}</dd>
-          </div>
-
-          <div>
-            <dt>CV skills detected</dt>
-            <dd>{cvSkills.length}</dd>
-          </div>
-        </dl>
-
-        {/* Display detected skills */}
-        {cvSkills.length > 0 && (
-          <div className="dashboard-detected-skills">
-            <h3>Detected skills</h3>
-
-            <ul className="skill-chip-list">
-              {cvSkills.map((skill) => (
-                <li key={skill} className="skill-chip">
-                  {formatSkillName(skill)}
-                </li>
-              ))}
-            </ul>
+            {dashboardData.careerRecommendation && (
+              <div className="dashboard-career-result">
+                <span>Suggested career direction</span>
+                <strong>{dashboardData.careerRecommendation}</strong>
+              </div>
+            )}
           </div>
         )}
       </section>
 
-      <nav
-        className="dashboard-footer-actions"
-        aria-label="Dashboard actions"
-      >
-        <Link className="primary-button" to="/upload-cv">
-          Analyse another CV
-        </Link>
+      {dashboardData && (
+        <section className="dashboard-results-section">
+          <div className="dashboard-result-panel">
+            <div className="dashboard-result-heading">
+              <div>
+                <p className="page-eyebrow">Strengths</p>
+                <h2>Matched skills</h2>
+              </div>
+              <span>{dashboardData.matchedSkills.length}</span>
+            </div>
 
-        <Link className="secondary-button" to="/job-comparison">
-          View job comparison
-        </Link>
+            {dashboardData.matchedSkills.length > 0 ? (
+              <ul className="dashboard-skill-list dashboard-skill-success">
+                {dashboardData.matchedSkills.map((skill) => (
+                  <li key={`matched-${skill}`}>
+                    {formatSkill(skill)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="dashboard-empty-message">
+                No matched skills were returned for this analysis.
+              </p>
+            )}
+          </div>
 
-        <Link className="secondary-button" to="/learning-roadmap">
-          Open learning roadmap
-        </Link>
-      </nav>
+          <div className="dashboard-result-panel">
+            <div className="dashboard-result-heading">
+              <div>
+                <p className="page-eyebrow">Development areas</p>
+                <h2>Missing skills</h2>
+              </div>
+              <span>{dashboardData.missingSkills.length}</span>
+            </div>
+
+            {dashboardData.missingSkills.length > 0 ? (
+              <ul className="dashboard-skill-list dashboard-skill-warning">
+                {dashboardData.missingSkills.map((skill) => (
+                  <li key={`missing-${skill}`}>
+                    {formatSkill(skill)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="dashboard-empty-message">
+                No missing skills were identified.
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
+      <style>{`
+        .dashboard-page {
+          width: 100%;
+          min-height: 100%;
+          padding: 2rem;
+        }
+
+        .dashboard-welcome-card {
+          display: grid;
+          grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+          gap: 2rem;
+          align-items: stretch;
+          max-width: 1180px;
+          margin: 0 auto;
+        }
+
+        .dashboard-welcome-copy,
+        .dashboard-analysis-placeholder,
+        .dashboard-latest-analysis,
+        .dashboard-result-panel {
+          background: #ffffff;
+          border: 1px solid #e3e8f3;
+          border-radius: 24px;
+          box-shadow: 0 12px 35px rgba(15, 34, 76, 0.06);
+        }
+
+        .dashboard-welcome-copy,
+        .dashboard-analysis-placeholder,
+        .dashboard-latest-analysis {
+          padding: 2rem;
+          min-height: 420px;
+        }
+
+        .dashboard-welcome-copy {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .dashboard-welcome-copy h1 {
+          margin: 0.5rem 0 1rem;
+          max-width: 680px;
+          font-size: clamp(2.4rem, 5vw, 4.6rem);
+          line-height: 0.98;
+          letter-spacing: -0.045em;
+          color: #071633;
+        }
+
+        .dashboard-welcome-description {
+          max-width: 620px;
+          margin: 0 0 1.75rem;
+          color: #657087;
+          font-size: 1.05rem;
+          line-height: 1.75;
+        }
+
+        .dashboard-welcome-copy .primary-button {
+          align-self: flex-start;
+          text-decoration: none;
+        }
+
+        .dashboard-analysis-placeholder {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          background:
+            linear-gradient(
+              145deg,
+              rgba(239, 244, 255, 0.96),
+              rgba(250, 247, 255, 0.96)
+            );
+        }
+
+        .dashboard-analysis-placeholder h2,
+        .dashboard-analysis-heading h2,
+        .dashboard-result-heading h2 {
+          margin: 0.4rem 0 0;
+          color: #071633;
+        }
+
+        .dashboard-analysis-placeholder h2 {
+          font-size: clamp(1.8rem, 3vw, 2.8rem);
+          line-height: 1.12;
+        }
+
+        .dashboard-analysis-placeholder p:last-child {
+          margin: 1rem 0 0;
+          color: #657087;
+          line-height: 1.7;
+        }
+
+        .dashboard-latest-analysis {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 1.25rem;
+          background:
+            linear-gradient(
+              145deg,
+              rgba(246, 249, 255, 0.98),
+              rgba(249, 247, 255, 0.98)
+            );
+        }
+
+        .dashboard-analysis-heading {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 1rem;
+        }
+
+        .dashboard-analysis-heading h2 {
+          font-size: 2rem;
+        }
+
+        .dashboard-match-badge {
+          border-radius: 999px;
+          padding: 0.55rem 0.85rem;
+          background: #eef4ff;
+          color: #245ec7;
+          font-weight: 700;
+          font-size: 0.86rem;
+        }
+
+        .dashboard-score-block {
+          padding: 1.15rem;
+          border: 1px solid #dfe6f2;
+          border-radius: 18px;
+          background: #ffffff;
+        }
+
+        .dashboard-score-block > div:first-child {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 0.85rem;
+        }
+
+        .dashboard-score-block span {
+          color: #657087;
+        }
+
+        .dashboard-score-block strong {
+          color: #071633;
+          font-size: 2rem;
+        }
+
+        .dashboard-progress-track {
+          width: 100%;
+          height: 10px;
+          overflow: hidden;
+          border-radius: 999px;
+          background: #e7eefb;
+        }
+
+        .dashboard-progress-value {
+          display: block;
+          height: 100%;
+          border-radius: inherit;
+          background: linear-gradient(90deg, #2e6df6, #5d8df8);
+        }
+
+        .dashboard-mini-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.8rem;
+        }
+
+        .dashboard-mini-grid article {
+          padding: 1rem;
+          border: 1px solid #dfe6f2;
+          border-radius: 16px;
+          background: rgba(255, 255, 255, 0.88);
+        }
+
+        .dashboard-mini-grid span {
+          display: block;
+          margin-bottom: 0.35rem;
+          color: #657087;
+          font-size: 0.84rem;
+        }
+
+        .dashboard-mini-grid strong {
+          color: #071633;
+          font-size: 1.65rem;
+        }
+
+        .dashboard-career-result {
+          padding: 1rem 1.1rem;
+          border-radius: 16px;
+          background: #eaf8f0;
+        }
+
+        .dashboard-career-result span {
+          display: block;
+          margin-bottom: 0.25rem;
+          color: #567064;
+          font-size: 0.84rem;
+        }
+
+        .dashboard-career-result strong {
+          color: #123b2a;
+          font-size: 1.2rem;
+        }
+
+        .dashboard-results-section {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 2rem;
+          max-width: 1180px;
+          margin: 2rem auto 0;
+        }
+
+        .dashboard-result-panel {
+          padding: 1.7rem;
+        }
+
+        .dashboard-result-heading {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 1.2rem;
+        }
+
+        .dashboard-result-heading > span {
+          display: grid;
+          width: 2.2rem;
+          height: 2.2rem;
+          place-items: center;
+          border-radius: 999px;
+          background: #eef4ff;
+          color: #245ec7;
+          font-weight: 800;
+        }
+
+        .dashboard-skill-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.7rem;
+          padding: 0;
+          margin: 0;
+          list-style: none;
+        }
+
+        .dashboard-skill-list li {
+          border-radius: 999px;
+          padding: 0.65rem 0.85rem;
+          font-weight: 700;
+          font-size: 0.9rem;
+        }
+
+        .dashboard-skill-success li {
+          background: #e8f8ee;
+          color: #1c6f42;
+        }
+
+        .dashboard-skill-warning li {
+          background: #fff0df;
+          color: #9a4d0d;
+        }
+
+        .dashboard-empty-message {
+          margin: 0;
+          color: #657087;
+          line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+          .dashboard-page {
+            padding: 1.25rem;
+          }
+
+          .dashboard-welcome-card,
+          .dashboard-results-section {
+            grid-template-columns: 1fr;
+          }
+
+          .dashboard-welcome-copy,
+          .dashboard-analysis-placeholder,
+          .dashboard-latest-analysis {
+            min-height: auto;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .dashboard-page {
+            padding: 1rem;
+          }
+
+          .dashboard-welcome-copy,
+          .dashboard-analysis-placeholder,
+          .dashboard-latest-analysis,
+          .dashboard-result-panel {
+            padding: 1.4rem;
+            border-radius: 18px;
+          }
+
+          .dashboard-mini-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </main>
   );
 }

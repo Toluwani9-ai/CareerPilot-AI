@@ -1,6 +1,7 @@
 import os
 from typing import Annotated
 
+# tools for API 
 from fastapi import (
     FastAPI,
     File,
@@ -10,20 +11,20 @@ from fastapi import (
     UploadFile,
     status,
 )
+# connection between backend and frontend 
 from fastapi.middleware.cors import CORSMiddleware
-# Import Pydantic models
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from cv_parser import extract_text_from_pdf
 from esco_repository import esco_repository
 
-# Import Gemini service
+# Connection to the Gemini AI
 from gemini_service import (
     GeminiConfigurationError,
     GeminiGenerationError,
     generate_career_guidance,
 )
-# Import skill analysis
+
 from skills_engine import analyse_cv_against_job
 
 
@@ -82,7 +83,7 @@ def get_allowed_origins() -> list[str]:
         if origin.strip()
     ]
 
-
+# Connection from the  frontend to the backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
@@ -181,6 +182,7 @@ def perform_analysis(
     ai_guidance = None
     ai_error = None
 
+     # Get skills from the CV analysis
     if include_ai:
         detected_skills = result.get(
             "cv_skills",
@@ -194,6 +196,7 @@ def perform_analysis(
             "missing_skills",
             result.get("skill_gaps", []),
         )
+         
          # generate the interview questions.
         try:
             ai_guidance = generate_career_guidance(
@@ -268,7 +271,7 @@ def home() -> HealthResponse:
         data_source="ESCO classification of the European Commission",
     )
 
-# Health check endpoint
+#checks if the backend is running
 @app.get(
     "/health",
     response_model=HealthResponse,
@@ -279,7 +282,7 @@ def health_check() -> HealthResponse:
     """Provide a dedicated health-check endpoint."""
     return home()
 
-
+# Receive CV and job description
 @app.post(
     "/analyse-skills",
     tags=["Skill Analysis"],
@@ -304,7 +307,7 @@ def analyse_skills(request: SkillAnalysisRequest) -> dict:
         job_description=request.job_description,
     )
 
-
+# it receives the CV  sent from the frontend for processing.
 @app.post(
     "/upload-cv",
     tags=["CV Processing"],
@@ -359,6 +362,7 @@ def analyse_uploaded_cv(request: CVJobAnalysisRequest) -> dict:
     This route is retained separately so a frontend may first display and allow
     the user to review extracted CV text before submitting it for analysis.
     """
+    # receives the analysis result
     return perform_analysis(
         cv_text=request.cv_text,
         job_description=request.job_description,
@@ -371,7 +375,7 @@ def analyse_uploaded_cv(request: CVJobAnalysisRequest) -> dict:
     summary="Upload a PDF CV and analyse it in one request",
 )
 
-# Upload and analyze CV
+
 async def upload_and_analyse_cv(
     file: Annotated[
         UploadFile,
