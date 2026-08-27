@@ -3,12 +3,12 @@ Final Year Software Development Project
 
 ## Overview
 
-CareerPilot-AI is an AI-powered web application developed for my Final Year Software Development Project.
+CareerPilot AI is an AI powered web application developed for my Final Year Software Development Project.
 
 The system helps students and graduates get prepared for jobs by uploading their cv, it allows the user to register an account then login into the account they created, so the user can upload their cv and enter their job description. it then identify their skills, discover their missing skills, it then do the job comparison and give the user alternative career recommendations, and also learning roadmaps, and integrates Google Gemini AI to generate interveiew questions and can also generate cover letters.
 
 
-CareerPilot-AI combines CV analysis, ESCO occupational and skills data, and Google Gemini AI to provide personalised career guidance based on the user's information.
+CareerPilot AI combines CV analysis, ESCO occupational and skills data, and Google Gemini AI to provide personalised career guidance based on the user's information.
 
 ## Technologies Used
 
@@ -31,8 +31,8 @@ CareerPilot-AI combines CV analysis, ESCO occupational and skills data, and Goog
 - Job comparison
 - Alternative Career recommendations
 - Learning roadmap based on the uploaded cv
-- AI-generated interview practice questions
-- AI-generated cover letters
+- AI generated interview practice questions
+- AI generated cover letters
 - User dashboard
 - Protected application routes
 
@@ -83,11 +83,12 @@ npm install
 
 ### Start the backend
 
-From the backend directory, activate the virtual environment and start the backend application.
+From the backend directory, activate the virtual environment and and start Uvicorn the backend application.
 
 ```bash
 cd backend
 source venv/bin/activate
+uvicorn main:app --reload
 ```
 
 Then run the backend using the command configured for the project.
@@ -107,7 +108,7 @@ Open the local address displayed by Vite in your browser.
 
 1. The user registers or login into the application.
 2. The user uploads their CV and then enters their job description.
-3. CareerPilot-AI processes the CV and identifies the matched skills and missiing skills. relevant skills.
+3. CareerPilot AI processes the CV and identifies the matched skills and missiing skills. relevant skills.
 4. The skills are compared with ESCO occupation and skills data.
 5. The system identifies matched skills and possible skill gaps.
 6. Career recommendations are produced from the analysis.
@@ -116,11 +117,11 @@ Open the local address displayed by Vite in your browser.
 
 ## ESCO Skills Data
 
-CareerPilot-AI uses ESCO occupational and skills data to support career and matching skills. The application uses information about occupations, skills and the relationships between occupations and skills to compare a user's profile with career requirements.
+CareerPilot AI uses ESCO occupational and skills data to support career and matching skills. The application uses information about occupations, skills and the relationships between occupations and skills to compare a user's profile with career requirements.
 
 ## AI Career Guidance
 
-Gemini AI uses Important rules to use the information supplied by the user and the results produced by CareerPilot-AI.
+Gemini AI uses Important rules to use the information supplied by the user and the results produced by CareerPilot AI.
 It allows features such as interview preparation and cover letter guidance.
 
 ## Notes
