@@ -68,7 +68,13 @@ pip install -r requirements.txt
 
 Create a `.env` file inside the backend directory and add the required environment variables, including the Gemini API key.
 
-API keys and other private credentials should never be uploaded to GitHub.
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=your_gemini_model_here
+CAREERPILOT_AI_ENABLED=true
+```
+
+API key and others are not added use your own API key.
 
 ### 4. Set up the frontend
 
@@ -90,8 +96,8 @@ cd backend
 source venv/bin/activate
 uvicorn main:app --reload
 ```
+Uvicorn running on http://127.0.0.1:8000 then you can access the FastAPI at: http://127.0.0.1:8000/docs
 
-Then run the backend using the command configured for the project.
 
 ### Start the frontend
 
@@ -101,7 +107,7 @@ Open a second terminal:
 cd frontend
 npm run dev
 ```
-
+When the frontend is on then Vite will show this local web address http://localhost:5173  
 Open the local address displayed by Vite in your browser.
 
 ## How CareerPilot-AI Works
