@@ -509,7 +509,7 @@ function JobComparisonStyles() {
       .job-match-number {
         display: block;
         margin-bottom: 18px;
-        font-size: clamp(2.4rem, 5vw, 4.4rem);
+        font-size: clamp(2.4rem, 5vw, 3.6rem);
         line-height: 1;
       }
 

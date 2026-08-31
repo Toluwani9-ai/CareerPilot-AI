@@ -130,6 +130,24 @@ CareerPilot AI uses ESCO occupational and skills data to support career and matc
 Gemini AI uses Important rules to use the information supplied by the user and the results produced by CareerPilot AI.
 It allows features such as interview preparation and cover letter guidance.
 
+## Testing
+
+The project includes automated tests for both the FastAPI backend and React frontend.
+
+## Backend tests
+
+```bash
+cd backend
+python3 -m pytest test_backend.py -v
+```
+
+## Frontend tests
+
+```bash
+cd frontend
+npm test
+```
+
 ## Notes
 
 - The backend and frontend must both be running for the application to work.

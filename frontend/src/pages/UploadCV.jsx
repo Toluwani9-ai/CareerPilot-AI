@@ -475,6 +475,7 @@ function UploadCV() {
           </p>
         </header>
 
+        {/* Compare your CV with a job */}
         <form className="cv-upload-card" onSubmit={handleSubmit} noValidate>
           <section
             className="cv-form-section"

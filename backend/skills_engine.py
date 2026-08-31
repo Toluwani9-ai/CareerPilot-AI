@@ -263,9 +263,23 @@ def calculate_skill_category_summary(skills: Set[str]) -> Dict[str, int]:
     return summary
 
 # Analyse CV against job description
-def analyse_cv_against_job(cv_text: str, job_description: str) -> Dict[str, object]:
+def analyse_cv_against_job(
+    cv_text: str,
+    job_description: str,
+    required_skills_override: Set[str] | None = None,
+    esco_occupation: Dict[str, object] | None = None,
+    esco_skill_records: List[Dict[str, str]] | None = None,
+) -> Dict[str, object]:
     cv_skills = extract_skills(cv_text)
-    required_skills = extract_skills(job_description)
+
+    # When ESCO skills are supplied by the backend, they become the source of
+    # required skills. Otherwise, fall back to extracting skills directly from
+    # the job description.
+    required_skills = (
+        set(required_skills_override)
+        if required_skills_override
+        else extract_skills(job_description)
+    )
 
     matched_skills = sorted(cv_skills.intersection(required_skills))
     missing_skills = sorted(required_skills.difference(cv_skills))

@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from cv_parser import extract_text_from_pdf
+# connection to esco repository
 from esco_repository import esco_repository
 
 # Connection to the Gemini AI
@@ -25,7 +26,7 @@ from gemini_service import (
     generate_career_guidance,
 )
 
-from skills_engine import analyse_cv_against_job
+from skills_engine import analyse_cv_against_job, extract_skills
 
 
 MAX_PDF_SIZE_BYTES = 5 * 1024 * 1024
@@ -92,7 +93,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+#SkillAnalysisRequest
 class SkillAnalysisRequest(BaseModel):
     """Request data used to compare CV text with a job description."""
 
@@ -124,7 +125,7 @@ class SkillAnalysisRequest(BaseModel):
         max_length=50_000,
         description="Description of the job the user wants to analyse.",
     )
-
+    # Validate CV text and job description 
     @field_validator("cv_text", "job_description")
     @classmethod
     def reject_blank_text(cls, value: str) -> str:
@@ -132,10 +133,8 @@ class SkillAnalysisRequest(BaseModel):
             raise ValueError("The supplied text cannot be empty.")
         return value
 
-
 class CVJobAnalysisRequest(SkillAnalysisRequest):
     """Request model retained for the uploaded-CV analysis route."""
-
 
 class HealthResponse(BaseModel):
     application: str
@@ -143,6 +142,51 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     data_source: str
+
+# Find the ESCO occupation
+def resolve_esco_requirements(job_description: str) -> dict:
+    """Resolve a target ESCO occupation and map its skills to project skill names."""
+    try:
+        occupation = esco_repository.match_occupation_from_text(job_description)
+    except Exception:
+        occupation = None
+
+    if not occupation:
+        return {
+            "occupation": None,
+            "skill_records": [],
+            "required_skills": set(),
+        }
+
+    try:
+        skill_records = esco_repository.get_occupation_skills(
+            occupation_uri=str(occupation["uri"]),
+        )
+    except Exception:
+        skill_records = []
+
+    mapped_required_skills: set[str] = set()
+
+   # Convert the detailed ESCO skill records
+    for skill in skill_records:
+        searchable_text = " ".join(
+            [
+                str(skill.get("skill_label", "")),
+                str(skill.get("description", "")),
+            ]
+        )
+        mapped_required_skills.update(extract_skills(searchable_text))
+
+    return {
+        "occupation": {
+            "uri": occupation.get("uri"),
+            "preferred_label": occupation.get("preferred_label"),
+            "description": occupation.get("description"),
+            "isco_group": occupation.get("isco_group"),
+        },
+        "skill_records": skill_records,
+        "required_skills": mapped_required_skills,
+    }
 
 
 def perform_analysis(
@@ -157,10 +201,17 @@ def perform_analysis(
     disabled, misconfigured or temporarily unavailable, the normal analysis
     is still returned together with a non-fatal AI error message.
     """
+    
+     # Use job description to find the matching and missing skills using ESCO occupation
     try:
+        esco_context = resolve_esco_requirements(job_description)
+
         result = analyse_cv_against_job(
             cv_text=cv_text,
             job_description=job_description,
+            required_skills_override=esco_context["required_skills"],
+            esco_occupation=esco_context["occupation"],
+            esco_skill_records=esco_context["skill_records"],
         )
     except ValueError as exc:
         raise HTTPException(
@@ -197,7 +248,7 @@ def perform_analysis(
             result.get("skill_gaps", []),
         )
          
-         # generate the interview questions.
+         
         try:
             ai_guidance = generate_career_guidance(
                 cv_text=cv_text,
@@ -307,7 +358,7 @@ def analyse_skills(request: SkillAnalysisRequest) -> dict:
         job_description=request.job_description,
     )
 
-# it receives the CV  sent from the frontend for processing.
+# Body_upload_cv_upload_cv_post and it receives the CV  sent from the frontend for processing.
 @app.post(
     "/upload-cv",
     tags=["CV Processing"],
@@ -368,7 +419,7 @@ def analyse_uploaded_cv(request: CVJobAnalysisRequest) -> dict:
         job_description=request.job_description,
     )
 
-
+# Body_upload_and_analyse_cv_upload_and_analyse_cv_post and receives uploaded cv
 @app.post(
     "/upload-and-analyse-cv",
     tags=["CV Processing"],
@@ -396,6 +447,7 @@ async def upload_and_analyse_cv(
     """
     file_bytes = await read_and_validate_pdf(file)
 
+    # Extract PDF text
     try:
         cv_text = extract_text_from_pdf(file_bytes)
     except Exception as exc:

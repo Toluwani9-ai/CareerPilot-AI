@@ -246,6 +246,46 @@ class EscoRepository:
 
         return results[:limit]
 
+    def match_occupation_from_text(
+        self,
+        text: str,
+    ) -> Optional[Dict[str, object]]:
+        """Find the most specific ESCO occupation label mentioned in free text."""
+        self.load()
+
+        normalised_text = f" {normalise_text(text)} "
+        candidates: List[tuple[int, int, Dict[str, object]]] = []
+
+        for occupation in self.occupations.values():
+            labels = [
+                str(occupation["preferred_label"]),
+                *[str(label) for label in occupation["alternative_labels"]],
+            ]
+
+            for label in labels:
+                normalised_label = normalise_text(label)
+                if not normalised_label:
+                    continue
+
+                # Match whole occupation phrases inside the job description.
+                pattern = rf"(?<![a-z0-9]){re.escape(normalised_label)}(?![a-z0-9])"
+                if re.search(pattern, normalised_text):
+                    # Prefer longer, more specific labels. Preferred labels win ties.
+                    is_preferred = int(
+                        normalised_label == str(occupation["normalised_label"])
+                    )
+                    candidates.append(
+                        (len(normalised_label), is_preferred, occupation)
+                    )
+                    break
+
+        if not candidates:
+            return None
+
+        candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
+        return candidates[0][2]
+
+
     def get_occupation(
         self,
         occupation_uri: str,

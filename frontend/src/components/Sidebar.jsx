@@ -344,7 +344,7 @@ function Sidebar({
               <h2 className="dashboard-sidebar__section-title">
               {section.label}
               </h2>
- 
+              {/* Create  link for pages */}
               <ul className="dashboard-sidebar__list">
                 {section.items.map((item) => (
                   <li key={item.path}>

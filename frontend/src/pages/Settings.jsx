@@ -585,6 +585,7 @@ function Settings() {
           </div>
         )}
 
+        {/* Profile and career preferences */}
         <form onSubmit={handleSubmit}>
           <section className="settings-card">
             <div className="settings-section-heading">
@@ -738,7 +739,8 @@ function Settings() {
               </div>
             </div>
           </section>
-
+            
+            {/* Notification and display */}
           <section className="settings-content-grid">
             <article className="settings-card settings-preferences-card">
               <div className="settings-section-heading compact">
@@ -797,6 +799,7 @@ function Settings() {
               </div>
             </article>
 
+            {/* Continue your career work */}
             <article className="settings-card settings-navigation-card">
               <div className="settings-section-heading compact">
                 <span className="settings-section-icon">
@@ -859,6 +862,7 @@ function Settings() {
           </section>
         </form>
 
+        {/* Manage your CareerPilot information */}
         <section className="settings-card settings-data-card">
           <div className="settings-section-heading">
             <span className="settings-section-icon">
@@ -955,6 +959,7 @@ function Settings() {
           </div>
         </section>
 
+        {/* Reset data or leave your session */}
         <section className="settings-card settings-danger-zone">
           <div>
             <p className="settings-danger-label">
@@ -1250,6 +1255,7 @@ function Settings() {
           color: #1ca85f;
         }
 
+        {/* End Notifications and Display Card, and also style other cards  */}
         .settings-card {
           border: 1px solid var(--settings-border);
           border-radius: 30px;
@@ -1537,6 +1543,7 @@ function Settings() {
           outline-offset: 3px;
         }
 
+        {/* Quick navigation card content */}
         .settings-navigation-list {
           display: grid;
         }
@@ -1606,6 +1613,7 @@ function Settings() {
           flex: 0 0 auto;
         }
 
+        {/* Reset data or leave your session */}
         .settings-danger-zone {
           display: flex;
           align-items: center;

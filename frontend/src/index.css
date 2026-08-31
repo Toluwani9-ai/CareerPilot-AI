@@ -316,6 +316,7 @@ select {
   transition: background-color 9999s ease-in-out 0s;
 }
 
+/* CV upload styling */
 .primary-button {
   display: inline-flex;
   align-items: center;
@@ -457,9 +458,7 @@ select {
   transform: translateY(-1px);
 }
 
-/* =========================================================
-   Medium screens
-   ========================================================= */
+/* Medium screens */
 
 @media (max-width: 1100px) {
   .auth-page {
@@ -475,9 +474,7 @@ select {
   }
 }
 
-/* =========================================================
-   Tablet layout
-   ========================================================= */
+/* Tablet layout */
 
 @media (max-width: 900px) {
   .auth-page {
@@ -570,8 +567,7 @@ select {
 }
 
 
-/* CV upload */
-
+/* CV upload styling*/
 .cv-upload-page {
   min-height: 100vh;
   padding: clamp(1.25rem, 3vw, 3rem);
@@ -923,6 +919,7 @@ select {
   background: #f8fafc;
 }
 
+/* CV upload styling */
 .cv-submit-button {
   width: 100%;
   min-height: 56px;
