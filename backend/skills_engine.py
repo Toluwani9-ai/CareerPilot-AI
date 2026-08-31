@@ -272,9 +272,7 @@ def analyse_cv_against_job(
 ) -> Dict[str, object]:
     cv_skills = extract_skills(cv_text)
 
-    # When ESCO skills are supplied by the backend, they become the source of
-    # required skills. Otherwise, fall back to extracting skills directly from
-    # the job description.
+    # When ESCO skills are supplied by the backend, they become the source
     required_skills = (
         set(required_skills_override)
         if required_skills_override

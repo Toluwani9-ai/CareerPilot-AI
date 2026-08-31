@@ -5,7 +5,7 @@ Final Year Software Development Project
 
 CareerPilot AI is an AI powered web application developed for my Final Year Software Development Project.
 
-The system helps students and graduates get prepared for jobs by uploading their cv, it allows the user to register an account then login into the account they created, so the user can upload their cv and enter their job description. it then identify their skills, discover their missing skills, it then do the job comparison and give the user alternative career recommendations, and also learning roadmaps, and integrates Google Gemini AI to generate interveiew questions and can also generate cover letters.
+The system helps students and graduates get prepared for jobs by uploading their cv, it allows the user to register an account then login into the account they created, so the user can upload their cv and enter their job description. The system extracts the skills from the CV and compares them with the skills required for the selected role using ESCO occupation and skills data. From this comparison, the system identifies the matched skills, the missing skills and calculates a job match score. it then do the job comparison and give the user alternative career recommendations, and also learning roadmaps, and integrates Google Gemini AI to generate interveiew questions and can also generate cover letters.
 
 
 CareerPilot AI combines CV analysis, ESCO occupational and skills data, and Google Gemini AI to provide personalised career guidance based on the user's information.
@@ -127,7 +127,7 @@ CareerPilot AI uses ESCO occupational and skills data to support career and matc
 
 ## AI Career Guidance
 
-Gemini AI uses Important rules to use the information supplied by the user and the results produced by CareerPilot AI.
+Google Gemini AI uses Important rules to use the information supplied by the user and the results produced by CareerPilot AI.
 It allows features such as interview preparation and cover letter guidance.
 
 ## Testing
