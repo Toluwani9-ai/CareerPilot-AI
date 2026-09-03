@@ -61,7 +61,7 @@ function Login() {
         <Link className="brand-link" to="/">
           CareerPilot AI
         </Link>
-
+         {/* Welcome back*/}
         <div className="auth-introduction-content">
           <span className="eyebrow">Welcome back</span>
 
@@ -91,6 +91,7 @@ function Login() {
         </div>
       </section>
 
+      {/* Sign in form */}
       <section className="auth-panel auth-form-section">
         <div className="auth-form-wrapper">
           <header className="auth-heading">

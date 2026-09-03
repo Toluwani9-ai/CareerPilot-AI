@@ -8,7 +8,7 @@ const ANALYSIS_STORAGE_KEYS = [
 ];
 
 const COVER_LETTER_STORAGE_KEY = "careerPilotCoverLetterDraft";
-
+//Form to fill for coverletter
 const EMPTY_FORM = {
   applicantName: "",
   applicantEmail: "",
@@ -39,7 +39,7 @@ const TONE_OPTIONS = [
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
-
+// Parse JSON safely
 function safelyParseJSON(value) {
   if (!value) {
     return null;
@@ -67,7 +67,7 @@ function readLatestAnalysis() {
 
   return null;
 }
-
+// AI guidance
 function getAIGuidance(analysis) {
   if (!isObject(analysis)) {
     return {};
@@ -86,7 +86,7 @@ function getAIGuidance(analysis) {
 
   return possibleGuidance.find(isObject) || {};
 }
-
+// Restore saved coverletter form and draft from localStorage
 function readSavedDraft() {
   if (typeof window === "undefined") {
     return null;
@@ -159,7 +159,7 @@ function getFirstArray(source, keys) {
 
   return [];
 }
-
+// Preferred capitalisation for common technical terms used in generated text.
 const TECHNICAL_TERMS = new Map([
   ["api", "API"],
   ["aws", "AWS"],
@@ -248,7 +248,7 @@ function polishAdditionalDetails(value) {
 
   return cleaned;
 }
-
+//short list of skills into natural written English.
 function formatSkillList(skills, maximumSkills = 5) {
   const selectedSkills = skills
     .slice(0, maximumSkills)
@@ -492,7 +492,7 @@ function extractAnalysisData(analysis) {
     aiProvider,
   };
 }
-
+// used the job description entered by the user
 function inferJobTitle(jobDescription, recommendedRole) {
   const description = normaliseText(jobDescription);
 
@@ -960,6 +960,7 @@ function CoverLetter() {
 
         {hasAnalysis && (
           <section className="cover-analysis-summary">
+            {/* display latest analysis */}
             <div className="cover-summary-heading">
               <div>
                 <span className="cover-eyebrow">Latest analysis</span>
@@ -970,7 +971,7 @@ function CoverLetter() {
                 View full comparison
               </Link>
             </div>
-
+            {/* the recommended career path */}
             <div className="cover-summary-grid">
               <article className="cover-summary-card">
                 <span>Target pathway</span>
@@ -994,7 +995,7 @@ function CoverLetter() {
                 <strong>{analysisData.matchScore.toFixed(1)}%</strong>
               </article>
             </div>
-
+            {/* displays the skills available for use in the cover letter */}
             {supportingSkills.length > 0 && (
               <div className="cover-skill-section">
                 <span>Skills available for your letter</span>
@@ -1008,7 +1009,7 @@ function CoverLetter() {
                 </div>
               </div>
             )}
-
+            {/* displays AI generated supporting points */}
             {analysisData.coverLetterPoints.length > 0 && (
               <div className="cover-skill-section">
                 <span>Gemini suggestions for this application</span>
@@ -1420,7 +1421,7 @@ function CoverLetter() {
           border-color: rgba(210, 140, 25, 0.3);
           background: #fffaf0;
         }
-
+       /* Styles the main Latest Analysis container */
         .cover-analysis-summary {
           padding: 2rem;
           margin-bottom: 1.5rem;
@@ -1440,7 +1441,7 @@ function CoverLetter() {
           gap: 1rem;
           margin-top: 1.75rem;
         }
-
+        /* Styles each analysis result card. */
         .cover-summary-card {
           min-height: 130px;
           padding: 1.4rem;

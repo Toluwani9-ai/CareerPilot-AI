@@ -110,7 +110,7 @@ function normaliseLevel(value, score) {
 
   return "Low match";
 }
-
+// Questions are based on your latest analysis
 function readLatestAnalysis() {
   if (typeof window === "undefined") {
     return null;
@@ -835,9 +835,7 @@ function QuestionNavigationItem({
   );
 }
 
-/* ==========================================================================
-   Main page
-   ========================================================================== */
+
 
 function InterviewPractice() {
   const [analysis] = useState(() =>
@@ -1175,7 +1173,7 @@ function InterviewPractice() {
           </div>
         </div>
       </section>
-
+         {/* ten interview questions */}
       <section className="interview-stat-grid">
         <article className="interview-stat-card">
           <span>Interview questions</span>
@@ -1217,7 +1215,7 @@ function InterviewPractice() {
           </p>
         </article>
       </section>
-
+        {/* Practice plan*/}
       <section className="interview-workspace">
         <aside
           className="interview-question-nav"
@@ -1233,7 +1231,7 @@ function InterviewPractice() {
               a time.
             </p>
           </div>
-
+              {/* Creates one selectable navigation item for each interview question */}
           <div className="interview-question-nav__list">
             {questions.map((question, index) => (
               <QuestionNavigationItem
@@ -1254,7 +1252,7 @@ function InterviewPractice() {
             ))}
           </div>
         </aside>
-
+        {/* Shows the current question number */}
         <article className="interview-practice-card">
           <div className="interview-question-heading">
             <div>
@@ -1288,7 +1286,7 @@ function InterviewPractice() {
               )}
             </span>
           </div>
-
+              {/* Displays the interview questions for the user */}
           <div className="interview-prompt">
             <span>Interview question</span>
             <p>{activeQuestion.prompt}</p>
@@ -1445,7 +1443,7 @@ function InterviewPractice() {
           </div>
         </article>
       </section>
-
+      {/* Shows the session summary */}
       <section className="interview-summary-section">
         <div className="interview-summary-section__heading">
           <div>
@@ -1460,7 +1458,7 @@ function InterviewPractice() {
             remove the saved session.
           </p>
         </div>
-
+        {/* Shows the percentage of interview questions completed */}
         <div className="interview-summary-grid">
           <article>
             <span>Completion</span>
@@ -1493,7 +1491,7 @@ function InterviewPractice() {
             <p>{formatSavedTime(session.lastSavedAt)}</p>
           </article>
         </div>
-
+        {/* Saves the current interview practice session */}
         <div className="interview-summary-actions">
           <button
             type="button"
@@ -1835,7 +1833,7 @@ function InterviewPracticeStyles() {
         color: var(--interview-muted);
         font-size: 0.75rem;
       }
-
+      /* Arranges the interview card into four equal sizes */
       .interview-stat-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1865,13 +1863,13 @@ function InterviewPracticeStyles() {
         font-size: clamp(2.5rem, 4vw, 4.3rem);
         letter-spacing: -0.055em;
       }
-
+      /* Styles the supporting description underneath each statistic */
       .interview-stat-card p {
         margin: 0;
         color: var(--interview-muted);
         line-height: 1.6;
       }
-
+      /* Creates layout for the question list and answer */
       .interview-workspace {
         display: grid;
         grid-template-columns: 360px minmax(0, 1fr);
@@ -1940,7 +1938,7 @@ function InterviewPracticeStyles() {
         border-color: rgba(40, 104, 237, 0.24);
         background: var(--interview-blue-soft);
       }
-
+      /* Styles the numbers displayed beside each interview question */
       .interview-question-nav__number {
         display: grid;
         width: 42px;
@@ -2334,7 +2332,7 @@ function InterviewPracticeStyles() {
         gap: 30px;
         align-items: end;
       }
-
+      /* Styles the main session */
       .interview-summary-section__heading h2 {
         margin: 12px 0 0;
         font-size: clamp(2rem, 4vw, 3.8rem);
@@ -2466,6 +2464,7 @@ function InterviewPracticeStyles() {
         line-height: 1.7;
       }
 
+      /* Creates three column layout for session summary cards */
       .interview-empty-state__actions {
         justify-content: center;
         margin-top: 30px;

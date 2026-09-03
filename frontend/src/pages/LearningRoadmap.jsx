@@ -138,7 +138,7 @@ function extractMissingSkills(savedAnalysis) {
       : []),
   ]);
 }
-
+// get skills that already match the job description required skills
 function extractMatchedSkills(savedAnalysis) {
   const analysis = getAnalysisSection(savedAnalysis);
 
@@ -151,7 +151,7 @@ function extractMatchedSkills(savedAnalysis) {
       : []),
   ]);
 }
-
+// get skills detected the uploaded CV
 function extractDetectedSkills(savedAnalysis) {
   const analysis = getAnalysisSection(savedAnalysis);
 
@@ -430,7 +430,7 @@ function buildRoadmap(missingSkills) {
 }
 
 
-// Components 
+//reusable label used to display skills across the page
 function SkillTag({ children, variant = "default" }) {
   return (
     <span className={`roadmap-skill-tag roadmap-skill-tag--${variant}`}>
@@ -573,8 +573,7 @@ function RoadmapStage({
 }
 
 
-
-// Main page component
+// Build the personalised roadmap from the user's skills analysis 
 function LearningRoadmap() {
   const [savedAnalysis] = useState(readLatestAnalysis);
   const [progress, setProgress] = useState(readSavedProgress);
@@ -889,7 +888,7 @@ function LearningRoadmap() {
             <li>Publish the work with clear documentation.</li>
           </ol>
         </section>
-
+            {/* Navigation to another feature */}
         <footer className="roadmap-actions">
           <Link className="roadmap-secondary-button" to="/upload-cv">
             Run another analysis

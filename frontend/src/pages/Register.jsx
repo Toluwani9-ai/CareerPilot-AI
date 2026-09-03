@@ -84,7 +84,7 @@ function Register() {
         <Link className="brand-link" to="/">
           CareerPilot AI
         </Link>
-
+        {/* Create your account*/}
         <div className="auth-introduction-content">
           <span className="eyebrow">Create your account</span>
 

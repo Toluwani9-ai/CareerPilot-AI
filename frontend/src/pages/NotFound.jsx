@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
+// Displays a 404 page not found
 function NotFound() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ function NotFound() {
           <Link className="not-found-brand" to="/dashboard">
             CareerPilot AI
           </Link>
-
+          {/* 404 error page. */}
           <span className="not-found-category">
             Navigation assistance
           </span>
@@ -80,6 +80,7 @@ function NotFound() {
           </div>
         </div>
 
+            {/* Continue your CareerPilot journey */}
         <div className="not-found-support">
           <div>
             <span className="not-found-support-label">
@@ -107,6 +108,7 @@ function NotFound() {
       </section>
 
       <style>{`
+         /* Overall page layout and background. */
         .not-found-page {
           min-height: 100vh;
           padding: 32px;
@@ -501,7 +503,7 @@ function NotFound() {
           .not-found-actions {
             flex-direction: column;
           }
-
+          /* Layout for the dashboard and go back buttons */
           .not-found-primary-button,
           .not-found-secondary-button {
             width: 100%;

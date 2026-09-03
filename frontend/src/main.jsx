@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 
+// Finds the HTML element where the React application will be displayed
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
@@ -12,7 +13,7 @@ if (!rootElement) {
   );
 }
 
-/* Create the React root */
+// Starts the React application
 createRoot(rootElement).render(
   <StrictMode>
     <App />

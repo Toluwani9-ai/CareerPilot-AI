@@ -813,7 +813,7 @@ function UploadCV() {
               </article>
             )}
 
-            {/* Suggested career direction */}
+            {/* alternative career path */}
             {careerRecommendation && (
               <article className="cv-result-panel cv-career-recommendation">
                 <FiBriefcase aria-hidden="true" />

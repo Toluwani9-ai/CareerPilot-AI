@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
+// Key used to save and retrieve the latest CV analysis
 const STORAGE_KEY = "careerPilotLatestAnalysis";
 
 function readLatestAnalysis() {
@@ -52,6 +53,7 @@ function getAnalysisData(result) {
   return result?.analysis ?? result?.result ?? result ?? {};
 }
 
+// Extracts the job-match score and converts it to a percentage
 function getMatchScore(analysis) {
   const possibleScore =
     analysis?.match_score ??
@@ -73,6 +75,7 @@ function getMatchScore(analysis) {
   return Math.min(100, Math.max(0, numericScore));
 }
 
+// Extracts the suggested career from the analysis 
 function getCareerRecommendation(analysis) {
   const recommendation =
     analysis?.career_recommendation ??
@@ -101,6 +104,7 @@ function formatSkill(skill) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
+// Main Dashboard component
 function Dashboard() {
   const [latestResult, setLatestResult] = useState(() =>
     readLatestAnalysis(),
@@ -132,6 +136,7 @@ function Dashboard() {
     };
   }, []);
 
+   // get the results from the analysis
   const dashboardData = useMemo(() => {
     if (!latestResult) {
       return null;
@@ -172,9 +177,11 @@ function Dashboard() {
     };
   }, [latestResult]);
 
+  
   return (
     <main className="dashboard-page">
       <section className="dashboard-welcome-card">
+        {/* Career overview */}
         <div className="dashboard-welcome-copy">
           <p className="page-eyebrow">Career overview</p>
 
@@ -214,6 +221,7 @@ function Dashboard() {
               )}
             </div>
 
+               {/* Display the calculated job-match percentage. */}
             <div className="dashboard-score-block">
               <div>
                 <span>Job match score</span>

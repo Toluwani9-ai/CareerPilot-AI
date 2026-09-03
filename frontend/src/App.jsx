@@ -13,6 +13,7 @@ import CoverLetter from "./pages/CoverLetter";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
+// Controls navigation between pages
 function App() {
   return (
     <BrowserRouter>

@@ -136,6 +136,7 @@ class SkillAnalysisRequest(BaseModel):
 class CVJobAnalysisRequest(SkillAnalysisRequest):
     """Request model retained for the uploaded-CV analysis route."""
 
+# Check backend status 
 class HealthResponse(BaseModel):
     application: str
     message: str
@@ -536,7 +537,7 @@ def search_esco_occupations(
         "results": results,
     }
 
-
+# Gets skills from ESCO occupation
 @app.get(
     "/esco/occupation-skills",
     tags=["ESCO"],

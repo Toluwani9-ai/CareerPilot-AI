@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+// Local-storage key used to save the user's settings
 const SETTINGS_STORAGE_KEY = "careerPilotSettings";
 
 const ANALYSIS_STORAGE_KEYS = [
@@ -37,7 +38,7 @@ const AUTH_STORAGE_KEYS = [
   "currentUser",
   "user",
 ];
-
+// Default values shown when the user has not entered any details. 
 const DEFAULT_SETTINGS = {
   fullName: "",
   email: "",
@@ -61,6 +62,7 @@ function isPlainObject(value) {
   );
 }
 
+// Reads JSON data from localStorage
 function safelyReadJSON(key) {
   try {
     const rawValue = localStorage.getItem(key);
@@ -92,7 +94,7 @@ function getStoredUser() {
 
   return {};
 }
-
+// saved settings and stored user details
 function getInitialSettings() {
   const storedSettings = safelyReadJSON(SETTINGS_STORAGE_KEY);
   const storedUser = getStoredUser();
@@ -168,7 +170,7 @@ function getExportableCareerPilotData() {
 
   return exportData;
 }
-
+// settings icon used in the user interface.
 function SettingsIcon() {
   return (
     <svg
@@ -184,6 +186,7 @@ function SettingsIcon() {
   );
 }
 
+//user icon
 function UserIcon() {
   return (
     <svg
@@ -213,7 +216,7 @@ function BellIcon() {
     </svg>
   );
 }
-
+// database icon.
 function DatabaseIcon() {
   return (
     <svg
@@ -461,6 +464,7 @@ function Settings() {
     }
   }
 
+  // removes saved CV analysis data after confirmation.
   function confirmClearAnalysis() {
     removeStorageKeys(ANALYSIS_STORAGE_KEYS);
     setDialog(null);

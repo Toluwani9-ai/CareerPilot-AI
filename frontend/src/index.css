@@ -1106,7 +1106,7 @@ select {
   flex: 1 1 210px;
 }
 
-/* Common alternative class names used by earlier UploadCV versions. */
+/* page size and container width for your CV upload page.*/
 .upload-cv-page {
   min-height: 100vh;
 }
